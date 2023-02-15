@@ -1,3 +1,3 @@
-# 유진투자증권 오픈 API 파이썬 모듈
+# pyEugene
 
-Eugene investment &amp; securities python open api module
+- pyEugene은 유진투자증권 제공하는 Champion Open API를 쉽게 사용하기 위한 비공식 python wrapper입니다
