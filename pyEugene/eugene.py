@@ -52,8 +52,13 @@ class Eugene():
         self.getData = []
         self.getDataArray = []
         self.returnData = {}
+        self.returnRealData = {}
 
         self.event_connect_loop = QEventLoop()
+
+    #================================================================
+    #                           LOGIN_API
+    #================================================================
 
     # 유진 오픈 api 로그인
     def login(self, wparam, lparam, id, pw, certPw):
@@ -68,6 +73,10 @@ class Eugene():
     def getLoginState(self):
         ret = self.eugene.dynamicCall("GetLoginState()")
         return ret
+
+    #================================================================
+    #                           TRAN_API
+    #================================================================
 
     # TR 조회용 고유 ID 생성
     def getRqId(self):
@@ -118,10 +127,53 @@ class Eugene():
                 ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", trCode, recName, itemName[i], 0)
                 self.returnData[itemName[i]] = ret.replace(" ", "")
 
+    #================================================================
+    #                           REAL_API
+    #================================================================
+
+    # REAL 실시간 등록
+    def setReal(self, realType, realKey, getData=[]):
+        self.getData = getData              #OutRec1 값
+        ret = self.eugene.dynamicCall("RegisterReal(int, QString)", realType, realKey)
+
+    # REAL 실시간 해제
+    def expReal(self, realType, realKey):
+        ret = self.eugene.dynamicCall("UnRegisterReal(int, QString)", realType, realKey)
+        return ret
+
+    # 모든 REAL 실시간 해제
+    def expAllReal(self):
+        ret = self.eugene.dynamicCall("AllUnRegisterReal()")
+        return ret
+
+    # REAL Output Data 가져오기
+    def getRealOutputData(self, realType, itemName):
+        getDicData = {}
+        for i in range(len(itemName)):
+            ret = self.eugene.dynamicCall("GetRealOutputData(QString, QString)", realType, itemName[i])
+            getDicData[itemName[i]] = ret.replace(" ", "")
+        self.returnRealData[realType] = getDicData
+
+    def getReturnRealData(self, realType=0):
+        self.event_connect_loop.exec_()
+        if realType == 0:
+            return self.returnRealData
+        else:
+            return self.returnRealData[realType]
+        
+
+    #================================================================
+    #                           SYSTEM_API
+    #================================================================
 
     # 단축코드로 풀코드 구하기
     def getExpCode(self, shCode):
         ret = self.eugene.dynamicCall("GetExpCode(QString", shCode)
+        return ret
+
+    # 표준코드로 단축코드 구하기
+    def getShCode(self, expCode):
+        ret = self.eugene.dynamicCall("GetShCode(QString", 구하기)
         return ret
 
     # 종목명으로 단축코드 구하기
@@ -134,10 +186,14 @@ class Eugene():
         ret = self.eugene.dynamicCall("GetLastErrMsg()")
         return ret
 
+    #================================================================
+    #                           GET_EVENT
+    #================================================================
+
     # OnGetTranData로 Event가 들어온 경우 호출 
     def process_event_tran_data(self, rqId, block, block_len):
         if(block_len > 29):
-            nCntData = self.getTranOutputRow(rqId, "OutRec1")
+            nCntData = self.getRealOutputData(rqId, "OutRec1")
             if nCntData > 0:
                 self.getTranOutputData(rqId, "OutRec1", self.getData, 0)
 
@@ -149,12 +205,16 @@ class Eugene():
         self.releaseRqId(rqId)
         self.event_connect_loop.exit()
 
-    # OnGetFidData로 Event가 들어온 경우 호출 
+    # OnGetFidData로 Event가 들어온 경우 호출
     def process_event_fid_data(self, rqId, block, block_len):
         self.event_connect_loop.exit()
 
     # OnGetRealData로 Event가 들어온 경우 호출 
-    def process_event_real_data(self, rqId, block, block_len):
+    def process_event_real_data(self, pbId, realKey, block, block_len):
+        if(block_len > 29):
+            self.getRealOutputData(pbId, self.getData)
+
+        #self.expReal(pbId, realKey)
         self.event_connect_loop.exit()
 
     # OnAgentEventHandler로 Event가 들어온 경우 호출 
@@ -166,25 +226,3 @@ if not QApplication.instance():
 
 if __name__ == "__main__":
     pass
-
-    """
-    app = QApplication(sys.argv)
-    eugeneVersion = EugeneVersion()
-    eugeneVersion.show()
-    wparam, lparam = eugeneVersion.get_version()
-
-    eugene = Eugene()
-    state = eugene.getLoginState()
-    if(state == 0):
-        load_dotenv()
-        eugene.login(wparam, lparam, os.getenv("USER_ID"), os.getenv("USER_PW"), os.getenv("CERT_PW"))
-
-        shCode = eugene.getShCodeByName("삼성전자")
-        expCode = eugene.getExpCode(shCode)
-
-        rqId = eugene.getRqId()
-        eugene.setTranInputData(rqId, "OTD3211Q", ["ACNO", "AC_PWD", "ITEM_COD", "CMSN_ICLN_YN"], [os.getenv("ACNO"), os.getenv("ACNO_PW"), expCode, "Y"])
-        print(eugene.requestTranData(rqId, "OTD3211Q", "", 20, ["AC_NM"], ["ITEM_COD", "ITEM_NM", "BAL_Q", "SEL_ABLE_Q", "CRD_TCD", "CLN_DT", "CBAS_PCHS_UPR"]))
-        sys.exit()
-    app.exec_()
-    """
