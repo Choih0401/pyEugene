@@ -10,16 +10,11 @@ class EugeneVersion(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("eugeneVersion")
-        self.setGeometry(300, 300, 180, 150)
+        self.setGeometry(300, 300, 180, 100)
 
         self.label = QLabel(self)
         self.label.move(40, 30)
         self.label.setText("버전처리중입니다.")
-
-        self.btn1 = QPushButton("확인", self)
-        self.btn1.move(40, 70)
-        self.btn1.clicked.connect(QCoreApplication.instance().quit)
-        self.btn1.setDisabled(True)
 
     def get_version(self):
         hwnd = win32gui.FindWindowEx(0, 0, 0, "eugeneVersion")
@@ -30,8 +25,6 @@ class EugeneVersion(QMainWindow):
                 msg = win32gui.GetMessage(hwnd,0,0)
                 msg = msg[1]
                 if msg[1] == 7422:
-                    self.label.setText("  버전처리 완료")
-                    self.btn1.setEnabled(True)
                     return msg[2], msg[3]
 
             print("Version patch fail!!")
@@ -160,7 +153,6 @@ class Eugene():
             return self.returnRealData
         else:
             return self.returnRealData[realType]
-        
 
     #================================================================
     #                           SYSTEM_API
@@ -214,7 +206,6 @@ class Eugene():
         if(block_len > 29):
             self.getRealOutputData(pbId, self.getData)
 
-        #self.expReal(pbId, realKey)
         self.event_connect_loop.exit()
 
     # OnAgentEventHandler로 Event가 들어온 경우 호출 
