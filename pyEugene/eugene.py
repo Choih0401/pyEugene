@@ -64,6 +64,8 @@ class Eugene():
         self.tr_output = {}
         self.rqName = None
 
+        self.real_output = {}
+
     def get_data(self, rqId, rqName, items):
         data_list = {}
 
@@ -91,24 +93,39 @@ class Eugene():
         df = data_list
         return df
 
+    # REAL Output Data 가져오기
+    def getRealOutputData(self, rqId, items):
+        data_list = {}
+        for i in range(len(items)):
+            ret = self.eugene.dynamicCall("GetRealOutputData(QString, QString)", rqId, items[i])
+            data_list[items[i]] = ret.replace(" ", "")
+        
+        # data to DataFrame
+        df = data_list
+        return df
+
     # OnGetTranData로 Event가 들어온 경우 호출 
     def process_event_tran_data(self, rqId, block, block_len):
-        if self.tr_dqueue is not None:
-            items = self.tr_output[rqId]
-            rqName = self.rqName
-            data = self.get_data(rqId, rqName, items)
-            self.tr_dqueue.put(data)
-        else:
-            items = self.tr_output[rqId]
-            rqName = self.rqName
-            data = self.get_data(rqId, rqName, items)
-            self.tr_dqueue.put(data)
+        items = self.tr_output[rqId]
+        rqName = self.rqName
+        data = self.get_data(rqId, rqName, items)
+        self.tr_dqueue.put(data)
 
+    # OnGetRealData로 Event가 들어온 경우 호출 
+    def process_event_real_data(self, realId, realKey, block, block_len):
+        if(block_len > 29):
+            if realKey not in self.real_output[str(realId)]:
+                realKey = self.getShCode(str(realKey))
+            items = self.real_output[str(realId)][str(realKey)]
+            data = self.getRealOutputData(realId, items)
+            self.real_dqueues.put(data)
+        
     def _set_signals_slots(self):
         self.eugene.OnGetTranData.connect(self.process_event_tran_data)
         #self.eugene.OnGetFidData.connect(self.process_event_fid_data)
-        #self.eugene.OnGetRealData.connect(self.process_event_real_data)
+        self.eugene.OnGetRealData.connect(self.process_event_real_data)
         #self.eugene.OnAgentEventHandler.connect(self.process_event_agent_data)
+
     #================================================================
     #                           LOGIN_API
     #================================================================
@@ -121,6 +138,11 @@ class Eugene():
                 return "Login error"
         else:
             return "Version patch fail"
+    
+    # 유진 오픈 api 로그인 상태 반환 (0=실패, 1=성공)
+    def getLoginState(self):
+        ret = self.eugene.dynamicCall("GetLoginState()")
+        return ret
 
     #================================================================
     #                           TRAN_API
@@ -147,6 +169,34 @@ class Eugene():
     def getTranOutputRow(self, trCode, recName):
         ret = self.eugene.dynamicCall("GetTranOutputRowCnt(QString, QString)", trCode, recName)
         return ret
+
+    #================================================================
+    #                           REAL_API
+    #================================================================
+
+    # REAL 실시간 등록
+    def setReal(self, realType, realKey):
+        ret = self.eugene.dynamicCall("RegisterReal(int, QString)", realType, realKey)
+
+    #================================================================
+    #                           SYSTEM_API
+    #================================================================
+
+    # 단축코드로 풀코드 구하기
+    def getExpCode(self, shCode):
+        ret = self.eugene.dynamicCall("GetExpCode(QString", shCode)
+        return ret
+
+    # 표준코드로 단축코드 구하기
+    def getShCode(self, expCode):
+        ret = self.eugene.dynamicCall("GetShCode(QString", expCode)
+        return ret
+
+    # 종목명으로 단축코드 구하기
+    def getShCodeByName(self, szName):
+        ret = self.eugene.dynamicCall("GetShCodeByName(QString)", szName)
+        return ret
+
 
 if not QApplication.instance():
     app = QApplication(sys.argv)

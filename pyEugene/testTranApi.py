@@ -18,7 +18,7 @@ if __name__ == "__main__":
         'input': {
             "ACNO": os.getenv("ACNO"),
             "AC_PWD": os.getenv("ACNO_PW"),
-            "ITEM_COD": "005930",
+            "ITEM_COD": "",
             "CMSN_ICLN_YN": "Y"
         },
         'output': ["ITEM_COD", "ITEM_NM", "BAL_Q", "SEL_ABLE_Q", "CRD_TCD", "CLN_DT", "CBAS_PCHS_UPR"]

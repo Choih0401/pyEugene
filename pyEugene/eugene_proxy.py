@@ -90,4 +90,20 @@ class EugeneProxy:
                 self.eugene.rqName = rqName
                 self.eugene.requestTranData(rqId, trCode, "", 20)
 
+            # real
+            if not self.real_cqueue.empty():
+                real_cmd = self.real_cqueue.get()
+
+                # parameters
+                realId = real_cmd['realId']
+                realKey = real_cmd['realKey']
+                output = real_cmd['output']
+
+                self.eugene.setReal(realId, realKey)
+
+                if realId not in self.eugene.real_output:
+                    self.eugene.real_output[realId] = {}
+
+                self.eugene.real_output[realId][realKey] = output
+
             pythoncom.PumpWaitingMessages()
