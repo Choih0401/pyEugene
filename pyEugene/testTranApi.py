@@ -30,3 +30,4 @@ if __name__ == "__main__":
         em.put_tr(tr_cmd)
         data = em.get_tr()
         print(data)
+    em.put_method(("releaseRqId", data))
