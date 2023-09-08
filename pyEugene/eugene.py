@@ -99,9 +99,23 @@ class Eugene():
         else:
             return "Version patch fail"
     
+    # 유진 오픈 api 파트너 로그인
+    def loginPartner(self, wparam, lparam, id, pw, certPw, partnerCode):
+        if lparam == 1:
+            ret = self.eugene.dynamicCall("CommLoginPartner(QString, QString, QString, Qstring, QString)", wparam, id, pw, certPw, partnerCode)
+            if ret != 0:
+                return "Login error"
+        else:
+            return "Version patch fail"
+    
     # 유진 오픈 api 로그인 상태 반환 (0=실패, 1=성공)
     def getLoginState(self):
         ret = self.eugene.dynamicCall("GetLoginState()")
+        return ret
+
+    # 로그아웃 처리 (0=실패, 1=성공)
+    def logout(self, id):
+        ret = self.eugene.dynamicCall("CommLogout(QString)", id)
         return ret
 
     #================================================================
@@ -192,6 +206,21 @@ class Eugene():
     #================================================================
     #                           SYSTEM_API
     #================================================================
+
+    # openApi 사용 계좌 개수 반환
+    def getAccCnt(self):
+        ret = self.eugene.dynamicCall("GetAccCnt()")
+        return ret
+
+    # openApi 사용 계좌번호 반환
+    def getAccInfo(self):
+        ret = self.eugene.dynamicCall("GetAccInfo()").split[";"]
+        return ret
+
+    # openApi 접속 모드 반환
+    def getLoginMode(self):
+        ret = self.eugene.dynamicCall("GetLoginMode()")
+        return ret
 
     # 마지막 오류 메시지 변환
     def getLastErrMsg(self):
