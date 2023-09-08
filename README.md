@@ -8,7 +8,7 @@ Eugene Investment & Securities Champion Open Api Python
 
 Introduction
 ------------
-pyEugene은 유진투자증권 제공하는 Champion Open API를 쉽게 사용하기 위한 비공식 python wrapper입니다.
+pyEugene은 유진투자증권에서 제공하는 Champion Open API를 쉽게 사용하기 위한 비공식 python wrapper입니다.
 
 유진투자증권 Open API를 잘 모르더라도 파이썬만 알고 있다면 쉽게 사용이 가능하도록 제작하는것에 초점을 두었습니다.
 
