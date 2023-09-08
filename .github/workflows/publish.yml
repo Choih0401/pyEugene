@@ -28,9 +28,6 @@ jobs:
       - name: Install poetry
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install poetry
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: poetry install
       - name: Publish
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
