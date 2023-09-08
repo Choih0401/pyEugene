@@ -12,11 +12,8 @@ class EugeneProxy:
     def __init__(self,
                  method_cqueue, method_dqueue,
                  tr_cqueue, tr_dqueue,
-                 order_cqueue,
                  real_cqueue, real_dqueues,
-                 cond_cqueue, cond_dqueue,
-                 tr_cond_dqueue, real_cond_dqueue,
-                 chejan_dqueue):
+                 event_dequeue):
         # method queue
         self.method_cqueue  = method_cqueue
         self.method_dqueue  = method_dqueue
@@ -25,21 +22,12 @@ class EugeneProxy:
         self.tr_cqueue      = tr_cqueue
         self.tr_dqueue      = tr_dqueue
 
-        # order queue
-        self.order_cqueue   = order_cqueue
-
         # real queue
         self.real_cqueue    = real_cqueue
         self.real_dqueues   = real_dqueues
 
-        # condition queue
-        self.cond_cqueue      = cond_cqueue         # tr/real condition command queue
-        self.cond_dqueue      = cond_dqueue         # condition name list queue
-        self.tr_cond_dqueue   = tr_cond_dqueue      # tr condition data queue
-        self.real_cond_dqueue = real_cond_dqueue    # real condition data queue
-
-        # chejan
-        self.chejan_dqueue    = chejan_dqueue
+        #event queue
+        self.event_dequeue   = event_dequeue
 
         eugeneVersion = EugeneVersion()
         eugeneVersion.show()
@@ -50,9 +38,7 @@ class EugeneProxy:
         self.eugene = Eugene(
             tr_dqueue           = self.tr_dqueue,
             real_dqueues        = self.real_dqueues,
-            tr_cond_dqueue      = self.tr_cond_dqueue,
-            real_cond_dqueue    = self.real_cond_dqueue,
-            chejan_dqueue       = self.chejan_dqueue
+            event_dequeue       = self.event_dequeue,
         )
 
         load_dotenv()
