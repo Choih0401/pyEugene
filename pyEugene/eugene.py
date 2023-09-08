@@ -38,32 +38,19 @@ class Eugene():
     def __init__(self,
                  tr_dqueue=None,
                  real_dqueues=None,
-                 tr_cond_dqueue=None,
-                 real_cond_dqueue=None,
-                 chejan_dqueue=None):
+                 event_dequeue=None):
         super().__init__()
         self.eugene = QAxWidget("CHAMPIONCOMMAGENT.ChampionCommAgentCtrl.1")
 
         # queues
         self.tr_dqueue          = tr_dqueue          # tr data queue
         self.real_dqueues       = real_dqueues       # real data queue list
-        self.tr_cond_dqueue     = tr_cond_dqueue
-        self.real_cond_dqueue   = real_cond_dqueue
-        self.chejan_dqueue      = chejan_dqueue
-
-        self.connected          = False              # for login event
-        self.received           = False              # for tr event
-        self.tr_items           = None               # tr input/output items
-        self.tr_data            = None               # tr output data
-        self.tr_record          = None
-        self.tr_remained        = False
-        self.condition_loaded   = False
+        self.event_dequeue      = event_dequeue      # event data queue
 
         self._set_signals_slots()
 
         self.tr_output = {}
         self.rqName = None
-
         self.real_output = {}
 
     def get_data(self, rqId, rqName, items):
@@ -119,12 +106,23 @@ class Eugene():
             items = self.real_output[str(realId)][str(realKey)]
             data = self.getRealOutputData(realId, items)
             self.real_dqueues.put(data)
+
+    # OnAgentEventHandler로 Event가 들어온 경우 호출
+    def process_event_agent_data(self, eventType, nParam, strParam):
+        data_list = {
+            "Error": {
+                "EventType": eventType,
+                "nParam": nParam,
+                "strParam": strParam,
+            }
+        }
+        self.event_dequeue.put(data_list)
         
     def _set_signals_slots(self):
         self.eugene.OnGetTranData.connect(self.process_event_tran_data)
         #self.eugene.OnGetFidData.connect(self.process_event_fid_data)
         self.eugene.OnGetRealData.connect(self.process_event_real_data)
-        #self.eugene.OnAgentEventHandler.connect(self.process_event_agent_data)
+        self.eugene.OnAgentEventHandler.connect(self.process_event_agent_data)
 
     #================================================================
     #                           LOGIN_API
