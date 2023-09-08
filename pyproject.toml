@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "pyeugene"
+version = "0.1.0"
+description = "Eugene Investment & Securities Champion Open Api Python"
+authors = ["Choh0401 <danielch0401@naver.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+certifi = "^2023.7.22"
+numpy = "^1.25.2"
+pandas = "1.5.3"
+pypiwin32 = "223"
+pyqt5 = "^5.15.9"
+python-dateutil = "^2.8.2"
+python-dotenv = "^1.0.0"
+pytz = "^2023.3.post1"
+six = "^1.16.0"
+wincertstore = "0.2"
+pyqt5-qt5 = "^5.15.2"
+pyqt5-sip = "^12.12.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
