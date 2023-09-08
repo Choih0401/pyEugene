@@ -14,14 +14,16 @@ if __name__ == "__main__":
     tr_cmd = {
         'rqId': data,
         'trCode': 'OTD3211Q',
-        'rqName': 'OutRec2',
         'input': {
             "ACNO": os.getenv("ACNO"),
             "AC_PWD": os.getenv("ACNO_PW"),
             "ITEM_COD": "",
             "CMSN_ICLN_YN": "Y"
         },
-        'output': ["ITEM_COD", "ITEM_NM", "BAL_Q", "SEL_ABLE_Q", "CRD_TCD", "CLN_DT", "CBAS_PCHS_UPR"]
+        'output': {
+            'OutRec1': ['RECNM', 'AC_NM'],
+            'OutRec2': ["ITEM_COD", "ITEM_NM", "BAL_Q", "SEL_ABLE_Q", "CRD_TCD", "CLN_DT", "CBAS_PCHS_UPR"]
+        }
     }
 
     codes = ["005930", "000020", "035720"]

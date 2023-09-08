@@ -64,7 +64,6 @@ class EugeneProxy:
 
                 # parameters
                 rqId = tr_cmd['rqId']
-                rqName = tr_cmd['rqName']
                 trCode = tr_cmd.get('trCode', rqId)
                 input  = tr_cmd['input']
                 output = tr_cmd['output']
@@ -73,7 +72,6 @@ class EugeneProxy:
                     self.eugene.setTranInputData(rqId, trCode, id, value)
 
                 self.eugene.tr_output[rqId] = output
-                self.eugene.rqName = rqName
                 self.eugene.requestTran(rqId, trCode, "", 20)
 
             # real
