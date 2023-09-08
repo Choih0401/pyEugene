@@ -242,6 +242,11 @@ class Eugene():
     def getOptShCode(self, monthIndex, callOrPut, index):
         ret = self.eugene.dynamicCall("GetOptShCode(int, int, int)", monthIndex, callOrPut, index)
         return ret
+    
+    # 종목코드 시장 구분값 구하기
+    def getMarketKubun(self, code):
+        ret = self.eugene.dynamicCall("GetMarketKubun(QString, QString)", code, "")
+        return ret
 
     # 해외주식 종목 정보 구하기
     def getOverseaStockInfo(self, code, itemindex):
