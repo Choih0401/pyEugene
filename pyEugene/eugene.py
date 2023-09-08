@@ -221,17 +221,17 @@ class Eugene():
     # 코드로 종목명 구하기
     def getNameByCode(self, code):
         ret = self.eugene.dynamicCall("GetNameByCode(QString)", code)
-        return return
+        return ret
     
     # 코드로 해당 업종 구하기
     def getUpjongByCode(self, code):
         ret = self.eugene.dynamicCall("GetUpjongByCode(QString)", code)
-        return return
+        return ret
 
     # 선물 코드 구하기
     def getFutShCode(self, stype, index):
         ret = self.eugene.dynamicCall("GetFutShCode(int, int)", stype, index)
-        return return
+        return ret
 
     # 옵션 ATM 가격 구하기
     def getOptionATMPrice(self):

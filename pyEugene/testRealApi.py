@@ -11,13 +11,13 @@ if __name__ == "__main__":
     real_cmd = {
         'realId': '21',
         'realKey': '005930',
-        'output': ["SCODE", "SNAME", "CMARKETGB", "LTIME", "CPCHECK", "LDIFF", "LCPRICE"]
+        'output': ["SCODE", "SNAME", "CMARKETGUBUN", "LTIME", "CPCHECK", "LDIFF", "LCPRICE"]
     }
 
     real_cmd2 = {
         'realId': '21',
         'realKey': '000660',
-        'output': ["SCODE", "SNAME", "CMARKETGB", "LTIME", "CPCHECK", "LDIFF", "LCPRICE"]
+        'output': ["SCODE", "SNAME", "CMARKETGUBUN", "LTIME", "CPCHECK", "LDIFF", "LCPRICE"]
     }
 
     em.put_real(real_cmd)
