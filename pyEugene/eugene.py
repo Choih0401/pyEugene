@@ -53,49 +53,11 @@ class Eugene():
         self.rqName = None
         self.real_output = {}
 
-    def get_data(self, rqId, rqName, items):
-        data_list = {}
-
-        nCntData = self.getTranOutputRow(rqId, rqName)
-        if nCntData > 0:
-            arrayData = []
-            for i in range(nCntData):
-                getDicData = {}
-                for j in range(len(items)):
-                    ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", rqId, rqName, items[j], i)
-                    getDicData[items[j]] = ret.replace(" ", "")
-                arrayData.append(getDicData)
-            data_list[rqName] = arrayData
-        else:
-            if rqName != "OutRec2":
-                arrayData = []
-                getDicData = {}
-                for i in range(len(items)):
-                    ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", rqId, rqName, items[i], 0)
-                    getDicData[items[i]] = ret.replace(" ", "")
-                arrayData.append(getDicData)
-                data_list[items[i]] = arrayData
-
-        # data to DataFrame
-        df = data_list
-        return df
-
-    # REAL Output Data 가져오기
-    def getRealOutputData(self, rqId, items):
-        data_list = {}
-        for i in range(len(items)):
-            ret = self.eugene.dynamicCall("GetRealOutputData(QString, QString)", rqId, items[i])
-            data_list[items[i]] = ret.replace(" ", "")
-        
-        # data to DataFrame
-        df = data_list
-        return df
-
     # OnGetTranData로 Event가 들어온 경우 호출 
     def process_event_tran_data(self, rqId, block, block_len):
         items = self.tr_output[rqId]
         rqName = self.rqName
-        data = self.get_data(rqId, rqName, items)
+        data = self.getTranOutputData(rqId, rqName, items)
         self.tr_dqueue.put(data)
 
     # OnGetRealData로 Event가 들어온 경우 호출 
@@ -160,13 +122,41 @@ class Eugene():
         self.eugene.dynamicCall("SetTranInputData(int, QString, QString, QString, QString)", rqId, trCode, "InRec1", id, value)
     
     # Tran Data 요청
-    def requestTranData(self, rqId, trCode, nextKey, requestCnt):
+    def requestTran(self, rqId, trCode, nextKey, requestCnt):
         self.eugene.dynamicCall("RequestTran(int, QString, QString, int)", rqId, trCode, nextKey, requestCnt)
 
     # Tran 수신 데이터 건수 구하기
-    def getTranOutputRow(self, trCode, recName):
+    def getTranOutputRowCnt(self, trCode, recName):
         ret = self.eugene.dynamicCall("GetTranOutputRowCnt(QString, QString)", trCode, recName)
         return ret
+
+    # TRAN Output Data 가져오기
+    def getTranOutputData(self, rqId, rqName, items):
+        data_list = {}
+
+        nCntData = self.getTranOutputRowCnt(rqId, rqName)
+        if nCntData > 0:
+            arrayData = []
+            for i in range(nCntData):
+                getDicData = {}
+                for j in range(len(items)):
+                    ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", rqId, rqName, items[j], i)
+                    getDicData[items[j]] = ret.replace(" ", "")
+                arrayData.append(getDicData)
+            data_list[rqName] = arrayData
+        else:
+            if rqName != "OutRec2":
+                arrayData = []
+                getDicData = {}
+                for i in range(len(items)):
+                    ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", rqId, rqName, items[i], 0)
+                    getDicData[items[i]] = ret.replace(" ", "")
+                arrayData.append(getDicData)
+                data_list[items[i]] = arrayData
+
+        # data to DataFrame
+        df = data_list
+        return df
 
     #================================================================
     #                           REAL_API
@@ -175,24 +165,87 @@ class Eugene():
     # REAL 실시간 등록
     def setReal(self, realType, realKey):
         ret = self.eugene.dynamicCall("RegisterReal(int, QString)", realType, realKey)
+        return ret
+
+    # REAL 실시간 해제
+    def unRegisterReal(self, realType, realKey):
+        ret = self.eugene.dynamicCall("UnRegisterReal(int, QString)", realType, realKey)
+        return ret
+    
+    # REAL 모든 실시간 해제
+    def allUnRegisterReal(self):
+        ret = self.eugene.dynamicCall("AllUnRegisterReal()")
+        return ret
+
+    # REAL Output Data 가져오기
+    def getRealOutputData(self, rqId, items):
+        data_list = {}
+        for i in range(len(items)):
+            ret = self.eugene.dynamicCall("GetRealOutputData(QString, QString)", rqId, items[i])
+            data_list[items[i]] = ret.replace(" ", "")
+        
+        # data to DataFrame
+        df = data_list
+        return df
+
 
     #================================================================
     #                           SYSTEM_API
     #================================================================
 
+    # 마지막 오류 메시지 변환
+    def getLastErrMsg(self):
+        ret = self.eugene.dynamicCall("GetLastErrMsg()")
+        return ret
+
+    # OpenAPI 파일이 위치한 경로 반환
+    def getApiAgentModulePath(self):
+        ret = self.eugene.dynamicCall("GetApiAgentModulePath()")
+        return ret
+
     # 단축코드로 풀코드 구하기
     def getExpCode(self, shCode):
-        ret = self.eugene.dynamicCall("GetExpCode(QString", shCode)
+        ret = self.eugene.dynamicCall("GetExpCode(QString)", shCode)
         return ret
 
     # 표준코드로 단축코드 구하기
     def getShCode(self, expCode):
-        ret = self.eugene.dynamicCall("GetShCode(QString", expCode)
+        ret = self.eugene.dynamicCall("GetShCode(QString)", expCode)
         return ret
 
     # 종목명으로 단축코드 구하기
     def getShCodeByName(self, szName):
         ret = self.eugene.dynamicCall("GetShCodeByName(QString)", szName)
+        return ret
+
+    # 코드로 종목명 구하기
+    def getNameByCode(self, code):
+        ret = self.eugene.dynamicCall("GetNameByCode(QString)", code)
+        return return
+    
+    # 코드로 해당 업종 구하기
+    def getUpjongByCode(self, code):
+        ret = self.eugene.dynamicCall("GetUpjongByCode(QString)", code)
+        return return
+
+    # 선물 코드 구하기
+    def getFutShCode(self, stype, index):
+        ret = self.eugene.dynamicCall("GetFutShCode(int, int)", stype, index)
+        return return
+
+    # 옵션 ATM 가격 구하기
+    def getOptionATMPrice(self):
+        ret = self.eugene.dynamicCall("GetOptionATMPrice()")
+        return ret
+
+    # 옵션 코드 구하기
+    def getOptShCode(self, monthIndex, callOrPut, index):
+        ret = self.eugene.dynamicCall("GetOptShCode(int, int, int)", monthIndex, callOrPut, index)
+        return ret
+
+    # 해외주식 종목 정보 구하기
+    def getOverseaStockInfo(self, code, itemindex):
+        ret = self.eugene.dynamicCall("GetOverseaStockInfo(QString, int)", code, itemindex)
         return ret
 
 

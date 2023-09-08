@@ -74,7 +74,7 @@ class EugeneProxy:
 
                 self.eugene.tr_output[rqId] = output
                 self.eugene.rqName = rqName
-                self.eugene.requestTranData(rqId, trCode, "", 20)
+                self.eugene.requestTran(rqId, trCode, "", 20)
 
             # real
             if not self.real_cqueue.empty():
@@ -85,11 +85,20 @@ class EugeneProxy:
                 realKey = real_cmd['realKey']
                 output = real_cmd['output']
 
-                self.eugene.setReal(realId, realKey)
+                ret = self.eugene.setReal(realId, realKey)
 
-                if realId not in self.eugene.real_output:
-                    self.eugene.real_output[realId] = {}
+                if ret == 1:
+                    if realId not in self.eugene.real_output:
+                        self.eugene.real_output[realId] = {}
 
-                self.eugene.real_output[realId][realKey] = output
+                    self.eugene.real_output[realId][realKey] = output
+                else:
+                    data_list = {
+                        "Error": {
+                            "EventType": "RegisterReal",
+                            "ErrorCode": ret
+                        }
+                    }
+                    self.event_dequeue.put(data_list)
 
             pythoncom.PumpWaitingMessages()
