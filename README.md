@@ -17,7 +17,7 @@ Free software: [`MIT`](https://github.com/Choih0401/pyEugene/blob/main/LICENSE)
 
 - Python 3.9.*
 - 32 Bit Development environment
-- Eugene Investment & Securities Account (need eugene account)
+- Eugene Investment & Securities Account (need eugene securities account)
 
 ## Introduction 💻
 
@@ -28,6 +28,17 @@ Even if you are not familiar with the functions below, you can use all of them.
 * The API structure of OCX provided by Eugene Investment & Securities
 * Operating Structure of the Version Processing Program Provided by Eugene Investment & Securities
 * Use [`dynamicCall`](https://doc.qt.io/qt-5/qaxbase.html#dynamicCall) function for function invocation in control
+
+<details>
+<summary>Korean Introduction</summary>
+pyEugene은 유진투자증권에서 제공하는 Champion Open API를 쉽게 사용하기 위한 비공식 python wrapper입니다.
+
+아래의 기능들을 잘 모르더라도 충분히 모든 기능을 사용할 수 있습니다.
+
+* 유진투자증권에서 제공하는 OCX의 API 구조
+* 유진투자증권에서 제공하는 버전처리 프로그램의 작동 구조
+* 컨트롤에서 함수 호출을 위한 [`dynamicCall`](https://doc.qt.io/qt-5/qaxbase.html#dynamicCall) 함수 사용
+</details>
 
 ## Getting Started 🚀
 
@@ -61,18 +72,32 @@ pipx install pyeugene
 ```
 
 Once you've installed `pyEugene`, you can start using it right away.
-For example, to get real-time stock price using `pyEugene`, enter the following command:
+For example, to get real-time stock price using `pyEugene`, enter the following code:
 
 ```python
-  
+import sys
+import os
+from pprint import pprint
+from dotenv import load_dotenv
+from pyeugene.eugene_manager import EugeneManager
+
+if __name__ == "__main__":
+    load_dotenv()
+    em = EugeneManager(os.getenv("USER_ID"), os.getenv("USER_PW"), os.getenv("CERT_PW"))
+
+    real_cmd = {
+        'realId': '21',
+        'realKey': '005930',
+        'output': ["SCODE", "SNAME", "CMARKETGUBUN", "LTIME", "CPCHECK", "LDIFF", "LCPRICE"]
+    }
+
+    em.put_real(real_cmd)
+    for i in range(10):
+        data = em.get_real()
+        pprint(data)
+    sys.exit()
 ```
 
-## 한국어 
+## Contributions 💬
 
-pyEugene은 유진투자증권에서 제공하는 Champion Open API를 쉽게 사용하기 위한 비공식 python wrapper입니다.
-
-아래의 기능들을 잘 모르더라도 충분히 모든 기능을 사용할 수 있습니다.
-
-* 유진투자증권에서 제공하는 OCX의 API 구조
-* 유진투자증권에서 제공하는 버전처리 프로그램의 작동 구조
-* 컨트롤에서 함수 호출을 위한 [`dynamicCall`](https://doc.qt.io/qt-5/qaxbase.html#dynamicCall) 함수 사용
+Feel free to contribute to `pyEugene` fixing bugs.
