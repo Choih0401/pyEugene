@@ -4,7 +4,7 @@ import os
 from PyQt5.QtWidgets import QApplication
 import pythoncom
 from dotenv import load_dotenv
-from eugene import Eugene, EugeneVersion
+from .eugene import Eugene, EugeneVersion
 
 class EugeneProxy:
     app = QApplication(sys.argv)
@@ -13,7 +13,7 @@ class EugeneProxy:
                  method_cqueue, method_dqueue,
                  tr_cqueue, tr_dqueue,
                  real_cqueue, real_dqueues,
-                 event_dequeue):
+                 event_dequeue, user_id, user_pw, cert_pw):
         # method queue
         self.method_cqueue  = method_cqueue
         self.method_dqueue  = method_dqueue
@@ -42,7 +42,7 @@ class EugeneProxy:
         )
 
         load_dotenv()
-        self.eugene.login(wparam, lparam, os.getenv("USER_ID"), os.getenv("USER_PW"), os.getenv("CERT_PW"))
+        self.eugene.login(wparam, lparam, user_id, user_pw, cert_pw)
 
         # subprocess run
         self.run()

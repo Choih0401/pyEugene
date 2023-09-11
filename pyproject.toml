@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "pyeugene"
-version = "0.1.4"
+version = "0.1.5"
 description = "Eugene Investment & Securities Champion Open Api Python"
 authors = ["Choh0401 <danielch0401@naver.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "3.9.*"
 certifi = "^2023.7.22"
 numpy = "^1.25.2"
 pandas = "1.5.3"
