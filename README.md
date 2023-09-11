@@ -17,7 +17,7 @@ Free software: [`MIT`](https://github.com/Choih0401/pyEugene/blob/main/LICENSE)
 
 - Python 3.9.*
 - 32 Bit Development environment
-- Eugene Investment & Securities Account (need eugene securities account)
+- Eugene Web Account (need Eugene securities account)
 
 ## Introduction 💻
 
@@ -60,15 +60,11 @@ If you replace the anaconda with 32-bit, create a 32-bit virtual environment
 conda create --name py39_32 python=3.9
 ```
 
-When you're done installing, use the pip to install `pyEugene`
+When you're done installing, activate virtual environment and use the pip to install `pyEugene`
 
 ```sh
+conda activate py39_32
 pip install pyeugene
-```
-
-Or you can use pipx:
-```sh
-pipx install pyeugene
 ```
 
 Once you've installed `pyEugene`, you can start using it right away.
