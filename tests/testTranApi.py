@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from pyeugene.eugene_manager import EugeneManager
 
 if __name__ == "__main__":
-        load_dotenv()
+    load_dotenv()
     em = EugeneManager()
 
     em.put_method(("getRqId", ""))
