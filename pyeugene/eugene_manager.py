@@ -1,9 +1,9 @@
 import multiprocessing as mp
-from eugene_proxy import EugeneProxy
+from .eugene_proxy import EugeneProxy
 
 
 class EugeneManager:
-    def __init__(self, daemon=True):
+    def __init__(self, user_id, user_pw, cert_pw, daemon=True):
         # SubProcess
         # method queue
         self.method_cqueue      = mp.Queue()
@@ -33,7 +33,8 @@ class EugeneManager:
                 self.real_cqueue,
                 self.real_dqueues,
                 # event queue
-                self.event_dequeue
+                self.event_dequeue,
+                user_id, user_pw, cert_pw
             ),
             daemon=daemon
         )

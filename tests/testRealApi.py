@@ -2,11 +2,11 @@ import sys
 import os
 from pprint import pprint
 from dotenv import load_dotenv
-from eugene_manager import EugeneManager
+from pyeugene.eugene_manager import EugeneManager
 
 if __name__ == "__main__":
-    em = EugeneManager()
     load_dotenv()
+    em = EugeneManager(os.getenv("USER_ID"), os.getenv("USER_PW"), os.getenv("CERT_PW"))
 
     real_cmd = {
         'realId': '21',
