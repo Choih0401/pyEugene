@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 from pyeugene.eugene_manager import EugeneManager
 
 if __name__ == "__main__":
-  load_dotenv()
-  em = EugeneManager()
-  
-  while(True):
-    data = em.getEvent()
-    pprint(data)
+    load_dotenv()
+    em = EugeneManager()
     
-  sys.exit()
+    while(True):
+        data = em.getEvent()
+        pprint(data)
+    
+    sys.exit()
