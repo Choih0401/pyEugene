@@ -1,5 +1,6 @@
 # pyEugene 📈
 
+![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FChoih0401%2FpyEugene&count_bg=%2331C854&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)
 [![Publish to Pypi](https://github.com/Choih0401/pyEugene/actions/workflows/publish.yml/badge.svg)](https://github.com/Choih0401/pyEugene/actions/workflows/publish.yml)
 [![PyPI version](https://badge.fury.io/py/pyeugene.svg)](https://badge.fury.io/py/pyeugene)
 [![Downloads](https://static.pepy.tech/personalized-badge/pyeugene?period=month&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/pyeugene)
@@ -27,8 +28,9 @@ Even if you are not familiar with the functions below, you can use all of them.
 
 * The API structure of OCX provided by Eugene Investment & Securities
 * Operating Structure of the Version Processing Program Provided by Eugene Investment & Securities
-* Use [`dynamicCall`](https://doc.qt.io/qt-5/qaxbase.html#dynamicCall) function for function invocation in control
-
+* Use [`dynamicCall`](https://doc.qt.io/qt-5/qaxbase.html#dynamicCall) function for function invocation in con>
+  
+<br>
 <details>
 <summary>한국어 소개 💻</summary>
 pyEugene은 유진투자증권에서 제공하는 Champion Open API를 쉽게 사용하기 위한 비공식 python wrapper입니다.
@@ -39,6 +41,7 @@ pyEugene은 유진투자증권에서 제공하는 Champion Open API를 쉽게 �
 * 유진투자증권에서 제공하는 버전처리 프로그램의 작동 구조
 * 컨트롤에서 함수 호출을 위한 [`dynamicCall`](https://doc.qt.io/qt-5/qaxbase.html#dynamicCall) 함수 사용
 </details>
+
 
 ## Getting Started 🚀
 
@@ -93,6 +96,8 @@ if __name__ == "__main__":
         pprint(data)
     sys.exit()
 ```
+
+<br>
 <details>
 <summary>한국어 사용 가이드 🚀</summary>
 

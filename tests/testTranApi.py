@@ -6,7 +6,7 @@ from pyeugene.eugene_manager import EugeneManager
 
 if __name__ == "__main__":
     load_dotenv()
-    em = EugeneManager()
+    em = EugeneManager(os.getenv("USER_ID"), os.getenv("USER_PW"), os.getenv("CERT_PW"))
 
     em.put_method(("getRqId", ""))
     data = em.get_method()
