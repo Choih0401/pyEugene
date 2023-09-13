@@ -28,6 +28,8 @@ Even if you are not familiar with the functions below, you can use all of them.
 * The API structure of OCX provided by Eugene Investment & Securities
 * Operating Structure of the Version Processing Program Provided by Eugene Investment & Securities
 * Use [`dynamicCall`](https://doc.qt.io/qt-5/qaxbase.html#dynamicCall) function for function invocation in con>
+  
+<br>
 <details>
 <summary>한국어 소개 💻</summary>
 pyEugene은 유진투자증권에서 제공하는 Champion Open API를 쉽게 사용하기 위한 비공식 python wrapper입니다.
