@@ -199,33 +199,38 @@ class Eugene():
         df = data_list
         return df
 
+    #================================================================
+    #                           FID_API
+    #================================================================
+
+    
 
     #================================================================
     #                           SYSTEM_API
     #================================================================
 
     # openApi 사용 계좌 개수 반환
-    def getAccCnt(self):
+    def getAccCnt(self, garbage):
         ret = self.eugene.dynamicCall("GetAccCnt()")
         return ret
 
     # openApi 사용 계좌번호 반환
-    def getAccInfo(self):
+    def getAccInfo(self, garbage):
         ret = self.eugene.dynamicCall("GetAccInfo()").split[";"]
         return ret
 
     # openApi 접속 모드 반환
-    def getLoginMode(self):
+    def getLoginMode(self, garbage):
         ret = self.eugene.dynamicCall("GetLoginMode()")
         return ret
 
     # 마지막 오류 메시지 변환
-    def getLastErrMsg(self):
+    def getLastErrMsg(self, garbage):
         ret = self.eugene.dynamicCall("GetLastErrMsg()")
         return ret
 
     # OpenAPI 파일이 위치한 경로 반환
-    def getApiAgentModulePath(self):
+    def getApiAgentModulePath(self, garbage):
         ret = self.eugene.dynamicCall("GetApiAgentModulePath()")
         return ret
 
@@ -260,7 +265,7 @@ class Eugene():
         return ret
 
     # 옵션 ATM 가격 구하기
-    def getOptionATMPrice(self):
+    def getOptionATMPrice(self, garbage):
         ret = self.eugene.dynamicCall("GetOptionATMPrice()")
         return ret
 
