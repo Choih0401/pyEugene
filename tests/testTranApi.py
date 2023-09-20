@@ -9,7 +9,9 @@ def getError():
     while True:
         em.put_method(("getLastErrMsg", ""))
         data = em.get_method()
-        pprint("Error ", data)
+        if data:
+            print("Error ", data)
+            sys.exit(0)
 
 if __name__ == "__main__":
     load_dotenv()
