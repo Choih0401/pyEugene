@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyeugene"
-version = "0.1.6"
+version = "0.1.7"
 description = "Eugene Investment & Securities Champion Open Api Python Wrapper"
 authors = ["Choh0401 <danielch0401@naver.com>"]
 readme = "README.md"
