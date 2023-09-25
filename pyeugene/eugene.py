@@ -107,7 +107,7 @@ class Eugene():
             return "Version patch fail"
     
     # 유진 오픈 api 로그인 상태 반환 (0=실패, 1=성공)
-    def getLoginState(self):
+    def getLoginState(self, garbage):
         ret = self.eugene.dynamicCall("GetLoginState()")
         return ret
 
@@ -184,7 +184,7 @@ class Eugene():
         return ret
     
     # REAL 모든 실시간 해제
-    def allUnRegisterReal(self):
+    def allUnRegisterReal(self, garbage):
         ret = self.eugene.dynamicCall("AllUnRegisterReal()")
         return ret
 
