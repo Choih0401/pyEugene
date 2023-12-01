@@ -60,12 +60,14 @@ class Eugene():
 
     # OnGetRealData로 Event가 들어온 경우 호출 
     def process_event_real_data(self, realId, realKey, block, block_len):
-        if(block_len > 29):
-            if realKey not in self.real_output[str(realId)]:
-                realKey = self.getShCode(str(realKey))
-            items = self.real_output[str(realId)][str(realKey)]
-            data = self.getRealOutputData(realId, items)
-            self.real_dqueues.put(data)
+        if block_len > 29:
+            real_output = self.real_output.get(str(realId))
+            if real_output is not None:
+                items = real_output.get(str(realKey))
+                if items is not None:
+                    realKey = self.getShCode(str(realKey))
+                    data = self.getRealOutputData(realId, items)
+                    self.real_dqueues.put(data)
 
     # OnAgentEventHandler로 Event가 들어온 경우 호출
     def process_event_agent_data(self, eventType, nParam, strParam):
@@ -149,9 +151,9 @@ class Eugene():
         for key in items:
             if key == "OutRec1":
                 getDicData = {}
-                for i in range(len(items[key])):
-                    ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", rqId, key, items[key][i], 0)
-                    getDicData[items[key][i]] = ret.replace(" ", "")
+                for item in items[key]:
+                    ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", rqId, key, item, 0)
+                    getDicData[item] = ret.replace(" ", "")
                 data_list[key] = getDicData
             elif key == "OutRec2":
                 nCntData = self.getTranOutputRowCnt(rqId, key)
@@ -159,9 +161,9 @@ class Eugene():
                     arrayData = []
                     for i in range(nCntData):
                         getDicData = {}
-                        for j in range(len(items[key])):
-                            ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", rqId, key, items[key][j], i)
-                            getDicData[items[key][j]] = ret.replace(" ", "")
+                        for item in items[key]:
+                            ret = self.eugene.dynamicCall("GetTranOutputData(QString, QString, QString, int)", rqId, key, item, i)
+                            getDicData[item] = ret.replace(" ", "")
                         arrayData.append(getDicData)
                     data_list[key] = arrayData
 
@@ -190,10 +192,7 @@ class Eugene():
 
     # REAL Output Data 가져오기
     def getRealOutputData(self, rqId, items):
-        data_list = {}
-        for i in range(len(items)):
-            ret = self.eugene.dynamicCall("GetRealOutputData(QString, QString)", rqId, items[i])
-            data_list[items[i]] = ret.replace(" ", "")
+        data_list = {item: self.eugene.dynamicCall("GetRealOutputData(QString, QString)", rqId, item).replace(" ", "") for item in items}
         
         # data to DataFrame
         df = data_list

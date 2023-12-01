@@ -2,23 +2,11 @@ import sys
 import os
 from pprint import pprint
 from dotenv import load_dotenv
-import threading
 from pyeugene.eugene_manager import EugeneManager
-
-def getError():
-    while True:
-        em.put_method(("getLastErrMsg", ""))
-        data = em.get_method()
-        if data:
-            print("Error ", data)
-            sys.exit(0)
 
 if __name__ == "__main__":
     load_dotenv()
     em = EugeneManager(os.getenv("USER_ID"), os.getenv("USER_PW"), os.getenv("CERT_PW"))
-
-    t = threading.Thread(target=getError)
-    t.start()
 
     em.put_method(("getRqId", ""))
     data = em.get_method()
@@ -43,5 +31,5 @@ if __name__ == "__main__":
         tr_cmd['input']['ITEM_COD'] = code
         em.put_tr(tr_cmd)
         data = em.get_tr()
-        print(data)
+        pprint(data)
     em.put_method(("releaseRqId", data))
