@@ -34,6 +34,11 @@ class EugeneProxy:
         wparam, lparam = eugeneVersion.get_version()
         eugeneVersion.close()
 
+        # Check version patch exception
+        if wparam == -1 and lparam == -1:
+            print("Version patch fail!!")
+            sys.exit()
+
         # Eugene instance
         self.eugene = Eugene(
             tr_dqueue           = self.tr_dqueue,
