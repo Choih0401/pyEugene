@@ -22,14 +22,13 @@ class EugeneVersion(QMainWindow):
         if(hwnd != 0):
             p = subprocess.Popen('C:/EugeneFN/ChampionOPENAPI/ChampionOpenAPIVersionProcess.exe /' + str(hwnd))
 
-            while True:
+            for i in range(100)
                 msg = win32gui.GetMessage(hwnd,0,0)
                 msg = msg[1]
                 if msg[1] == 7422:
                     return msg[2], msg[3]
-
-            print("Version patch fail!!")
-            sys.exit()
+                elif i == 99:
+                    return -1, -1
         else:
             print("Invaild hwnd data")
             sys.exit()
