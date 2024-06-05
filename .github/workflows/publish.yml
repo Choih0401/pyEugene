@@ -28,6 +28,8 @@ jobs:
       - name: Install poetry
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install poetry
+      - name: Remove poetry.lock
+        run: rm poetry.lock
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: poetry install
