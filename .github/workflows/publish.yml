@@ -25,12 +25,12 @@ jobs:
         with:
           path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-publish
-      - name: Set poetry lock
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: poetry lock --no-update
       - name: Install poetry
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install poetry
+      - name: Set poetry lock
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: poetry lock --no-update
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: poetry install
