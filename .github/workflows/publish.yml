@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.9.12'
           architecture: 'x86'
       - uses: actions/cache@v2
         id: cache
@@ -28,11 +28,8 @@ jobs:
       - name: Install poetry
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install poetry
-      - name: Remove poetry lock
-        run: rm poetry.lock
-      - name: Remake poetry lock
-        run: poetry.lock
       - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: poetry install
       - name: Publish
         env:
