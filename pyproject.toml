@@ -17,7 +17,7 @@ python-dotenv = "^1.0.0"
 pytz = "^2023.3.post1"
 six = "^1.16.0"
 wincertstore = "^0.2"
-pyqt5-qt5 = "^5.15.2"
+pyqt5-qt5 = "5.15.2"
 pyqt5-sip = "^12.12.2"
 
 
