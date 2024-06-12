@@ -158,3 +158,5 @@ if __name__ == "__main__":
 ## Contributions 💬
 
 Feel free to contribute to `pyEugene` fixing bugs.
+
+If you have any problems, please contact me by e-mail(danielch0401@naver.com)
