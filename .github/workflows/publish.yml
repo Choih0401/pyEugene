@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9.12'
+          python-version: '3.9'
           architecture: 'x86'
       - uses: actions/cache@v2
         id: cache
