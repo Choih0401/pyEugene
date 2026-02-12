@@ -22,7 +22,7 @@ class EugeneVersion(QMainWindow):
         if(hwnd != 0):
             p = subprocess.Popen('C:/EugeneFN/ChampionOPENAPI/ChampionOpenAPIVersionProcess.exe /' + str(hwnd))
 
-            for i in range(100)
+            for i in range(100):
                 msg = win32gui.GetMessage(hwnd,0,0)
                 msg = msg[1]
                 if msg[1] == 7422:
