@@ -3,7 +3,6 @@
 [![Publish to Pypi](https://github.com/Choih0401/pyEugene/actions/workflows/publish.yml/badge.svg)](https://github.com/Choih0401/pyEugene/actions/workflows/publish.yml)
 [![PyPI version](https://badge.fury.io/py/pyeugene.svg)](https://badge.fury.io/py/pyeugene)
 [![Downloads](https://static.pepy.tech/personalized-badge/pyeugene?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/pyeugene)
-![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FChoih0401%2FpyEugene&count_bg=%2331C854&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)
 
 Eugene Investment & Securities Champion Open Api Python Wrapper
 
