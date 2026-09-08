@@ -55,15 +55,23 @@ class Eugene():
         data = self.getTranOutputData(rqId, items)
         self.tr_dqueue.put(data)
 
-    # OnGetRealData로 Event가 들어온 경우 호출 
+    # OnGetRealData로 Event가 들어온 경우 호출
     def process_event_real_data(self, realId, realKey, block, block_len):
         if block_len > 29:
             real_output = self.real_output.get(str(realId))
             if real_output is not None:
                 items = real_output.get(str(realKey))
                 if items is not None:
-                    realKey = self.getShCode(str(realKey))
+                    shCode = self.getShCode(str(realKey))
                     data = self.getRealOutputData(realId, items)
+                    # tag the update with which subscription it belongs to -
+                    # GetRealOutputData() only returns the requested fields,
+                    # with nothing saying which realId/realKey it came from,
+                    # which made it impossible for a caller with more than
+                    # one active subscription to tell them apart.
+                    data["_realId"] = str(realId)
+                    data["_realKey"] = str(realKey)
+                    data["_shCode"] = shCode
                     self.real_dqueues.put(data)
 
     # OnAgentEventHandler로 Event가 들어온 경우 호출
@@ -212,7 +220,7 @@ class Eugene():
 
     # openApi 사용 계좌번호 반환
     def getAccInfo(self, garbage):
-        ret = self.eugene.dynamicCall("GetAccInfo()").split[";"]
+        ret = self.eugene.dynamicCall("GetAccInfo()").split(";")
         return ret
 
     # openApi 접속 모드 반환
