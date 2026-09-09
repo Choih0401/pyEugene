@@ -49,6 +49,12 @@ Real서비스IO.pdf  ─┴─ tools/parse_catalog.py ─→ catalog/tran_catalo
 
 ## Running
 
+`eugene_api` is a standalone companion app meant to be run from a clone of
+this repo - it is **not** part of the `pyeugene` package published to PyPI
+(that package is `pyeugene/` only, installed via `pip install pyeugene`).
+Running it means cloning this repo and using `requirements-api.txt`, not
+`pip install`-ing anything from this project.
+
 ### Mock mode (default) - any OS, no account needed
 
 ```bash
@@ -100,9 +106,11 @@ when they're disabled.
   Swagger's "Try it out" (WebSocket has no OpenAPI schema).
 * `WS /ws/real/{code}?key=<realKey>` - continuous push for as long as the
   socket is open. Authenticate with an `X-API-Key` header if your client can
-  set one; otherwise pass `&api_key=<key>` in the query string (browsers
-  can't set custom headers on a WebSocket handshake) - prefer the header
-  when you can, since a query string can end up in logs/proxies/history.
+  set one on the handshake. Browsers can't, so instead send the key as the
+  first message right after connecting: `{"api_key": "<key>"}`. The key is
+  never accepted as a query parameter, since that would end up in
+  server/proxy access logs and browser history - and this key also
+  authorizes the trading routes when `EUGENE_ENABLE_TRADING=true`.
 * `GET /catalog/tran`, `GET /catalog/real` - machine-readable listing of
   every generated route, its fields, and whether it's currently enabled.
 * `GET /utils/*` - the small set of code/name lookup and account/login
@@ -190,6 +198,16 @@ instead of raising - see the fixes upstream in `pyeugene`) is detected in
 instead of a `200` response with every field silently `null` (a Pydantic
 response model just drops an unrecognized `"Error"` key by default, which
 used to hide the failure entirely).
+
+Every TR/method call is also bounded by `EUGENE_CALL_TIMEOUT_SECONDS`
+(default 30s) - without this, a Champion OpenAPI session that stops
+responding left the HTTP request hanging forever with no error at all. A
+timeout surfaces as the same `502` shape. Note this only bounds *that*
+request: the underlying pyeugene call still holds `EugeneManager`'s
+internal lock in its own thread until it eventually returns (if ever), so
+if this keeps happening the whole manager is effectively stuck and the
+server needs to be restarted - a timeout is a diagnostic, not a full
+recovery.
 
 ## Regression check
 

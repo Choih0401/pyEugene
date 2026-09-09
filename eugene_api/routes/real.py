@@ -29,8 +29,9 @@ def _describe(spec: RealSpec) -> str:
         lines.append("Real Code(key) 형식: " + " ".join(spec.real_code_desc))
     lines.append(
         f"WebSocket 스트리밍: `/ws/real/{spec.code}?key=<realKey>` - "
-        "`X-API-Key` 헤더를 설정할 수 있는 클라이언트는 헤더로, 브라우저처럼 헤더를 못 붙이는 "
-        "경우엔 `&api_key=<API 키>` 쿼리파라미터로 인증하세요 "
+        "`X-API-Key` 헤더를 설정할 수 있는 클라이언트는 헤더로 인증하세요. 브라우저처럼 핸드셰이크에 "
+        "헤더를 못 붙이는 경우, 연결 직후 첫 메시지로 `{\"api_key\": \"<API 키>\"}`를 보내면 됩니다 "
+        "(쿼리파라미터로는 인증할 수 없습니다 - 로그/프록시/브라우저 기록에 키가 남는 것을 방지하기 위함). "
         "(연속 수신, Swagger UI에는 스키마가 표시되지 않습니다)"
     )
     if spec.dropped_fields:
@@ -70,17 +71,24 @@ def make_ws_handler(spec: RealSpec, dispatcher: RealDispatcher, service: EugeneS
     async def handler(
         websocket: WebSocket,
         key: str = Query(...),
-        # api_key (query string) exists for browser clients that can't set custom
-        # headers on a WebSocket handshake; anything that can set a header should
-        # prefer X-API-Key instead, since a query string can end up in server/proxy
-        # access logs and browser history.
-        api_key: str = Query(default=""),
+        # Clients that can set a custom header on the WebSocket handshake
+        # (anything but a browser page) should use X-API-Key. A query
+        # string is deliberately NOT accepted as an alternative - it ends
+        # up in server/proxy access logs and browser history, and this key
+        # also authorizes the trading routes when enabled. Browser clients
+        # instead send the key as the first message right after connecting:
+        # {"api_key": "..."}.
         x_api_key: str = Header(default="", alias="X-API-Key"),
     ):
-        if settings.api_key and settings.api_key not in (api_key, x_api_key):
-            await websocket.close(code=4401)
-            return
         await websocket.accept()
+        if settings.api_key and x_api_key != settings.api_key:
+            try:
+                first = await asyncio.wait_for(websocket.receive_json(), timeout=5)
+            except Exception:
+                first = None
+            if not isinstance(first, dict) or first.get("api_key") != settings.api_key:
+                await websocket.close(code=4401)
+                return
         q = await dispatcher.subscribe(spec, key)
         try:
             while True:

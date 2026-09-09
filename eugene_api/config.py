@@ -40,5 +40,10 @@ class Settings:
 
     real_snapshot_default_timeout: float = float(os.getenv("EUGENE_REAL_SNAPSHOT_TIMEOUT", "5"))
 
+    # Bounds every TR/method call to pyeugene. Without this, a Champion
+    # OpenAPI session that stops responding (dropped connection, etc.)
+    # leaves the HTTP request hanging forever - see EugeneService._run().
+    call_timeout_seconds: float = float(os.getenv("EUGENE_CALL_TIMEOUT_SECONDS", "30"))
+
 
 settings = Settings()

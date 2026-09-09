@@ -75,8 +75,11 @@ class TranSpec:
 
     @property
     def is_mutating(self) -> bool:
-        """TR codes ending in U are order/cancel/amend ("처리") calls; Q is query ("조회")."""
-        return self.code.upper().endswith("U")
+        """TR codes ending in (uppercase) U are order/cancel/amend ("처리") calls; Q is
+        query ("조회"). Must NOT uppercase first - e.g. "dnewjtu" is a lowercase,
+        read-only query code that happens to end in "u"; .upper()-ing it before the
+        check would misclassify it as a mutating/order TR."""
+        return self.code.endswith("U")
 
     @property
     def has_usable_schema(self) -> bool:

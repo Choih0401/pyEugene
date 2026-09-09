@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from eugene_api.catalog import RealSpec, TranSpec
+from eugene_api.config import settings
 
 logger = logging.getLogger("eugene_api")
 
@@ -56,11 +57,27 @@ class EugeneService:
     def set_manager(self, manager) -> None:
         self._manager = manager
 
-    async def _run(self, fn, *args):
+    async def _run(self, fn, *args, timeout: float = None):
         if self._manager is None:
             raise RuntimeError("EugeneService.set_manager() was not called yet (server still starting up?)")
         loop = asyncio.get_running_loop()
-        result = await loop.run_in_executor(None, fn, *args)
+        future = loop.run_in_executor(None, fn, *args)
+        try:
+            result = await asyncio.wait_for(future, timeout=timeout if timeout is not None else settings.call_timeout_seconds)
+        except asyncio.TimeoutError:
+            # Without this, a Champion OpenAPI session that stops responding
+            # (dropped connection, etc.) left request_tr()/request_method()
+            # blocking forever - the HTTP request would just hang with no
+            # error at all. Note this bounds *this* call's wait; the
+            # underlying executor thread is still blocked inside pyeugene
+            # holding EugeneManager's internal request lock, so if this
+            # happens repeatedly every other call will start timing out too
+            # (the process genuinely needs to be restarted at that point).
+            raise PyeugeneCallError(
+                f"{getattr(fn, '__name__', fn)} timed out after "
+                f"{timeout if timeout is not None else settings.call_timeout_seconds}s - the underlying pyeugene "
+                "session may be stuck. If this keeps happening, the server needs to be restarted."
+            )
         if isinstance(result, dict) and "Error" in result:
             raise PyeugeneCallError(str(result["Error"]))
         return result
