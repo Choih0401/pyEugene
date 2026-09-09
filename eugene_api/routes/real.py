@@ -12,19 +12,15 @@ import asyncio
 import logging
 from typing import Dict
 
-from fastapi import FastAPI, Header, HTTPException, Query, WebSocket, WebSocketDisconnect, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, WebSocket, WebSocketDisconnect, status
 
 from eugene_api.catalog import RealSpec
 from eugene_api.config import settings
 from eugene_api.dynamic_models import build_real_output_model
+from eugene_api.security import verify_api_key
 from eugene_api.service import EugeneService, RealDispatcher
 
 logger = logging.getLogger("eugene_api")
-
-
-def _check_api_key(x_api_key: str) -> None:
-    if settings.api_key and x_api_key != settings.api_key:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid or missing X-API-Key header")
 
 
 def _describe(spec: RealSpec) -> str:
@@ -32,7 +28,9 @@ def _describe(spec: RealSpec) -> str:
     if spec.real_code_desc:
         lines.append("Real Code(key) 형식: " + " ".join(spec.real_code_desc))
     lines.append(
-        f"WebSocket 스트리밍: `/ws/real/{spec.code}?key=<realKey>&api_key=<API 키>` "
+        f"WebSocket 스트리밍: `/ws/real/{spec.code}?key=<realKey>` - "
+        "`X-API-Key` 헤더를 설정할 수 있는 클라이언트는 헤더로, 브라우저처럼 헤더를 못 붙이는 "
+        "경우엔 `&api_key=<API 키>` 쿼리파라미터로 인증하세요 "
         "(연속 수신, Swagger UI에는 스키마가 표시되지 않습니다)"
     )
     if spec.dropped_fields:
@@ -48,9 +46,7 @@ def make_snapshot_handler(spec: RealSpec, output_model, dispatcher: RealDispatch
         key: str = Query(..., description="종목코드 등 Real Code 값 (예: 표준코드 또는 단축코드)"),
         timeout: float = Query(settings.real_snapshot_default_timeout, ge=0.5, le=60,
                                 description="초 단위 대기 시간"),
-        x_api_key: str = Header(default="", alias="X-API-Key"),
     ):
-        _check_api_key(x_api_key)
         q = await dispatcher.subscribe(spec, key)
         try:
             try:
@@ -74,9 +70,14 @@ def make_ws_handler(spec: RealSpec, dispatcher: RealDispatcher, service: EugeneS
     async def handler(
         websocket: WebSocket,
         key: str = Query(...),
+        # api_key (query string) exists for browser clients that can't set custom
+        # headers on a WebSocket handshake; anything that can set a header should
+        # prefer X-API-Key instead, since a query string can end up in server/proxy
+        # access logs and browser history.
         api_key: str = Query(default=""),
+        x_api_key: str = Header(default="", alias="X-API-Key"),
     ):
-        if settings.api_key and api_key != settings.api_key:
+        if settings.api_key and settings.api_key not in (api_key, x_api_key):
             await websocket.close(code=4401)
             return
         await websocket.accept()
@@ -108,6 +109,7 @@ def register_real_routes(app: FastAPI, service: EugeneService, dispatcher: RealD
             description=_describe(spec),
             tags=["REAL · 실시간"],
             operation_id=f"real_snapshot_{spec.code}",
+            dependencies=[Depends(verify_api_key)],
         )
 
         app.add_api_websocket_route(

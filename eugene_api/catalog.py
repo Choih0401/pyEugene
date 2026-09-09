@@ -51,7 +51,6 @@ def _sanitize(raw_fields: List[dict]) -> SanitizeResult:
             bool(_IDENT_RE.match(item))
             and not keyword.iskeyword(item)
             and len(item) <= _MAX_ITEM_LEN
-            and "\n" not in raw.get("description", "")[:0]  # description itself may be long, that's fine
         )
         if not valid or item in seen:
             dropped.append(item[:60])

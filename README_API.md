@@ -98,8 +98,11 @@ when they're disabled.
   to `timeout` seconds for the next matching real-time update, returns it,
   then unsubscribes. The practical way to see a Real ID's shape from
   Swagger's "Try it out" (WebSocket has no OpenAPI schema).
-* `WS /ws/real/{code}?key=<realKey>&api_key=<key>` - continuous push for as
-  long as the socket is open.
+* `WS /ws/real/{code}?key=<realKey>` - continuous push for as long as the
+  socket is open. Authenticate with an `X-API-Key` header if your client can
+  set one; otherwise pass `&api_key=<key>` in the query string (browsers
+  can't set custom headers on a WebSocket handshake) - prefer the header
+  when you can, since a query string can end up in logs/proxies/history.
 * `GET /catalog/tran`, `GET /catalog/real` - machine-readable listing of
   every generated route, its fields, and whether it's currently enabled.
 * `GET /utils/*` - the small set of code/name lookup and account/login
@@ -170,8 +173,9 @@ PYTHONPATH=. python tools/test_pyeugene_fixes.py
 * **주식그룹주문 (`OTD1103U`)** needs `SetTranInputArrayData`/
   `SetTranInputArrayCnt`, which the same missing pages (5.1.3) would document
   the exact signature for. Same caveat as FID - not implemented without it.
-  It's still registered as a route like any other TR, but won't behave
-  correctly against the real OCX until this is added.
+  Unlike the other TR codes, `POST /tran/OTD1103U` returns `501 Not
+  Implemented` instead of silently calling a broken path (see
+  `UNSUPPORTED_CODES` in `eugene_api/routes/tran.py`).
 * Real-time routing is now exact per `(realId, realKey)` rather than
   best-effort, but multiple *different* Real IDs still share one queue -
   under heavy multi-symbol load this is a single-threaded fan-in, not a
