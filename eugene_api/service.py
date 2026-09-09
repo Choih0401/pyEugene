@@ -34,6 +34,21 @@ logger = logging.getLogger("eugene_api")
 _INTERNAL_TAG_KEYS = ("_realId", "_realKey", "_shCode")
 
 
+class PyeugeneCallError(RuntimeError):
+    """
+    Raised when pyeugene itself reports a call failure.
+
+    eugene_proxy.py's exception handling (added to stop a bug in one call
+    from killing the whole subprocess) reports failures by putting
+    {"Error": "..."} on the response queue instead of raising - so a failed
+    call still "succeeds" as far as EugeneManager.request_tr()/
+    request_method() are concerned. Without this check, that error dict was
+    getting passed straight to a Pydantic response model, which silently
+    drops the unknown "Error" key and returns a 200 with every field null -
+    hiding the failure instead of surfacing it.
+    """
+
+
 class EugeneService:
     def __init__(self, manager=None):
         self._manager = manager
@@ -45,7 +60,10 @@ class EugeneService:
         if self._manager is None:
             raise RuntimeError("EugeneService.set_manager() was not called yet (server still starting up?)")
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(None, fn, *args)
+        result = await loop.run_in_executor(None, fn, *args)
+        if isinstance(result, dict) and "Error" in result:
+            raise PyeugeneCallError(str(result["Error"]))
+        return result
 
     async def call_method(self, name: str, *params) -> Any:
         """Invokes any pyeugene Eugene method by name (e.g. getShCode, getNameByCode)."""
@@ -134,10 +152,17 @@ class RealDispatcher:
         output_fields = [f.item for f in spec.output]
         sub = _Subscription(real_id=spec.real_id, key=key)
         self._subs.append(sub)
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(
-            None, self._manager.put_real, {"realId": spec.real_id, "realKey": key, "output": output_fields}
-        )
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                None, self._manager.put_real, {"realId": spec.real_id, "realKey": key, "output": output_fields}
+            )
+        except Exception:
+            # otherwise a failed put_real() leaves an orphaned subscription
+            # in self._subs forever - it will never be unsubscribed, since
+            # the caller never got a queue back to unsubscribe with.
+            self._subs.remove(sub)
+            raise
         return sub.queue
 
     def unsubscribe(self, spec: RealSpec, key: str, q: "asyncio.Queue[dict]") -> bool:

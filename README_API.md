@@ -181,6 +181,16 @@ PYTHONPATH=. python tools/test_pyeugene_fixes.py
   under heavy multi-symbol load this is a single-threaded fan-in, not a
   fundamental limit but worth knowing about.
 
+## Error handling
+
+A TR/method call that fails inside pyeugene itself (an exception caught by
+`eugene_proxy.py`'s own error handling, which reports `{"Error": "..."}`
+instead of raising - see the fixes upstream in `pyeugene`) is detected in
+`EugeneService._run()` and surfaces as `502 {"detail": "pyeugene 호출 실패: ..."}`,
+instead of a `200` response with every field silently `null` (a Pydantic
+response model just drops an unrecognized `"Error"` key by default, which
+used to hide the failure entirely).
+
 ## Regression check
 
 `tools/smoke_test.py` exercises the app end-to-end in mock mode (health,
@@ -189,4 +199,14 @@ catalog listing, a TR call, a Real snapshot, a utils lookup, and that
 
 ```bash
 PYTHONPATH=. python tools/smoke_test.py
+```
+
+`tools/verify_error_handling.py` covers the failure paths found in review:
+a simulated pyeugene-side TR failure surfacing as 502 instead of a
+null-filled 200, `RealDispatcher.subscribe()` not leaking a subscription
+when `put_real()` raises, and the mock's `unRegisterReal` actually removing
+its entry (a `str`/`int` type mismatch used to make it never match):
+
+```bash
+PYTHONPATH=. python tools/verify_error_handling.py
 ```

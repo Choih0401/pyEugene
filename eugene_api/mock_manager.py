@@ -48,8 +48,15 @@ class FakeEugeneManager:
         elif name == "releaseRqId":
             self._last_method_result = None
         elif name == "unRegisterReal":
-            real_id, real_key = params[0], params[1]
-            self._active_reals = [r for r in self._active_reals if not (r[0] == real_id and r[1] == real_key)]
+            # params[0] arrives as an int (EugeneService.unregister_real()
+            # converts it to match the real dynamicCall signature), but
+            # put_real() stored realId as the original string - compare as
+            # strings so this actually removes the entry instead of never
+            # matching and leaking it forever.
+            real_id, real_key = str(params[0]), str(params[1])
+            self._active_reals = [
+                r for r in self._active_reals if not (str(r[0]) == real_id and str(r[1]) == real_key)
+            ]
             self._last_method_result = 1
         else:
             self._last_method_result = f"mock:{name}"

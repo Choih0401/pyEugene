@@ -3,6 +3,8 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from starlette.requests import Request
 
 from eugene_api.catalog import build_quality_report, load_real_catalog, load_tran_catalog
 from eugene_api.config import settings
@@ -10,7 +12,7 @@ from eugene_api.routes.generic import build_generic_router
 from eugene_api.routes.real import register_real_routes
 from eugene_api.routes.tran import register_tran_routes
 from eugene_api.routes.utils import build_utils_router
-from eugene_api.service import EugeneService, RealDispatcher
+from eugene_api.service import EugeneService, PyeugeneCallError, RealDispatcher
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("eugene_api")
@@ -84,6 +86,10 @@ def build_app() -> FastAPI:
         version="0.1.0",
         lifespan=lifespan,
     )
+
+    @app.exception_handler(PyeugeneCallError)
+    async def handle_pyeugene_call_error(request: Request, exc: PyeugeneCallError):
+        return JSONResponse(status_code=502, content={"detail": f"pyeugene 호출 실패: {exc}"})
 
     app.include_router(build_generic_router(tran_catalog, real_catalog))
     app.include_router(build_utils_router(service))
