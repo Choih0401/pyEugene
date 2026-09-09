@@ -1,3 +1,4 @@
+import queue
 import threading
 import multiprocessing as mp
 from .eugene_proxy import EugeneProxy
@@ -50,12 +51,32 @@ class EugeneManager:
         )
         self.proxy.start()
 
+    def _get_or_die(self, q, poll_interval=0.5):
+        """
+        Like q.get(), but if the EugeneProxy subprocess has died (a startup
+        failure - bad version patch, login error, missing OCX - or a crash),
+        raises instead of blocking forever. Without this, a dead subprocess
+        left every blocking get_method()/get_tr()/get_real() call hanging
+        with no error at all, since nothing was ever going to be put on the
+        queue again.
+        """
+        while True:
+            try:
+                return q.get(timeout=poll_interval)
+            except queue.Empty:
+                if not self.proxy.is_alive():
+                    raise RuntimeError(
+                        "EugeneProxy subprocess is not running - it likely failed during "
+                        "startup (version patch / login) or crashed. Check getEvent() for "
+                        "the last reported error, or re-create EugeneManager."
+                    )
+
     # method
     def put_method(self, cmd):
         self.method_cqueue.put(cmd)
 
     def get_method(self):
-        return self.method_dqueue.get()
+        return self._get_or_die(self.method_dqueue)
 
     def request_method(self, name, *params):
         """Atomic put_method()+get_method() - safe to call from multiple threads."""
@@ -68,7 +89,7 @@ class EugeneManager:
         self.tr_cqueue.put(cmd)
 
     def get_tr(self):
-        return self.tr_dqueue.get()
+        return self._get_or_die(self.tr_dqueue)
 
     def request_tr(self, cmd):
         """Atomic put_tr()+get_tr() - safe to call from multiple threads."""
@@ -81,8 +102,8 @@ class EugeneManager:
         self.real_cqueue.put(cmd)
 
     def get_real(self):
-        return self.real_dqueues.get()
+        return self._get_or_die(self.real_dqueues)
 
     # event
     def getEvent(self):
-        return self.event_dequeue.get()
+        return self._get_or_die(self.event_dequeue)
