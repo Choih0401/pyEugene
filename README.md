@@ -154,6 +154,10 @@ if __name__ == "__main__":
 ```
 </details>
 
+## REST API Gateway 🌐
+
+Want a REST API + Swagger UI on top of pyEugene instead of calling it directly from Python? See [README_API.md](./README_API.md) - it generates a FastAPI route per TR code / Real ID straight from Eugene's `TRAN서비스IO.pdf` / `Real서비스IO.pdf`, and ships a mock mode that runs on any OS (no Windows/account needed) to explore the generated API.
+
 ## Contributions 💬
 
 Feel free to contribute to `pyEugene` fixing bugs.

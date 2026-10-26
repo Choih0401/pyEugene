@@ -1,0 +1,8 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+python-dotenv>=1.0
+
+# Only needed to regenerate catalog/*.json from the Eugene PDF guides
+# (tools/parse_catalog.py); not required to run the server itself.
+pdfplumber>=0.11
