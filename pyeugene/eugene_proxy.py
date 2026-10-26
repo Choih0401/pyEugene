@@ -31,29 +31,47 @@ class EugeneProxy:
         #event queue
         self.event_dequeue   = event_dequeue
 
-        eugeneVersion = EugeneVersion()
-        eugeneVersion.show()
-        wparam, lparam = eugeneVersion.get_version()
-        eugeneVersion.close()
+        try:
+            eugeneVersion = EugeneVersion()
+            eugeneVersion.show()
+            wparam, lparam = eugeneVersion.get_version()
+            eugeneVersion.close()
 
-        # Check version patch exception
-        if wparam == -1 and lparam == -1:
-            print("Version patch fail!!")
-            sys.exit()
+            # Check version patch exception
+            if wparam == -1 and lparam == -1:
+                raise RuntimeError("Version patch fail")
 
-        # Eugene instance
-        self.eugene = Eugene(
-            tr_dqueue           = self.tr_dqueue,
-            real_dqueues        = self.real_dqueues,
-            event_dequeue       = self.event_dequeue,
-        )
+            # Eugene instance
+            self.eugene = Eugene(
+                tr_dqueue           = self.tr_dqueue,
+                real_dqueues        = self.real_dqueues,
+                event_dequeue       = self.event_dequeue,
+            )
 
-        load_dotenv()
-        if partner_code:
-            # 제휴사 신청계좌: CommLogin이 아니라 CommLoginPartner를 호출해야 함
-            self.eugene.loginPartner(wparam, lparam, user_id, user_pw, cert_pw, partner_code)
-        else:
-            self.eugene.login(wparam, lparam, user_id, user_pw, cert_pw)
+            load_dotenv()
+            if partner_code:
+                # 제휴사 신청계좌: CommLogin이 아니라 CommLoginPartner를 호출해야 함
+                login_result = self.eugene.loginPartner(wparam, lparam, user_id, user_pw, cert_pw, partner_code)
+            else:
+                login_result = self.eugene.login(wparam, lparam, user_id, user_pw, cert_pw)
+
+            if login_result != 0:
+                # Doesn't stop the process - report it and still enter run()
+                # so the caller can see the failure via getEvent() instead of
+                # every other call hanging with zero explanation forever.
+                self._report_error("login", RuntimeError(str(login_result)))
+        except Exception as exc:
+            # Before this, a failure here (version patch, missing OCX
+            # module, ...) used to kill the subprocess via a bare
+            # sys.exit()/uncaught exception with no diagnostic at all, and
+            # every caller's blocking get_method()/get_tr()/get_real() would
+            # then hang forever waiting on a process that no longer exists.
+            # Reporting it first at least gives getEvent() something to see
+            # before the process exits (EugeneManager.get_*() also now
+            # detects a dead subprocess instead of hanging - see
+            # eugene_manager.py).
+            self._report_error("startup", exc)
+            raise
 
         # subprocess run
         self.run()

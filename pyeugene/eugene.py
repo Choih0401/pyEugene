@@ -28,8 +28,11 @@ class EugeneVersion(QMainWindow):
                 if msg[1] == 7422:
                     return msg[2], msg[3]
         else:
-            print("Invaild hwnd data")
-            sys.exit()
+            # used to be sys.exit() here, which kills the EugeneProxy
+            # subprocess with no diagnostic and leaves every caller's
+            # blocking get_method()/get_tr()/get_real() hanging forever.
+            # Raising lets EugeneProxy.__init__ report a clear error first.
+            raise RuntimeError("eugeneVersion window not found (Invalid hwnd)")
 
 class Eugene():
     def __init__(self,
@@ -95,21 +98,23 @@ class Eugene():
     #                           LOGIN_API
     #================================================================
 
-    # 유진 오픈 api 로그인
+    # 유진 오픈 api 로그인 (성공 시 0, 실패 시 에러 메시지 문자열 반환)
     def login(self, wparam, lparam, id, pw, certPw):
         if lparam == 1:
             ret = self.eugene.dynamicCall("CommLogin(QString, QString, QString, Qstring)", wparam, id, pw, certPw)
             if ret != 0:
                 return "Login error"
+            return 0
         else:
             return "Version patch fail"
-    
-    # 유진 오픈 api 파트너 로그인
+
+    # 유진 오픈 api 파트너 로그인 (성공 시 0, 실패 시 에러 메시지 문자열 반환)
     def loginPartner(self, wparam, lparam, id, pw, certPw, partnerCode):
         if lparam == 1:
             ret = self.eugene.dynamicCall("CommLoginPartner(QString, QString, QString, Qstring, QString)", wparam, id, pw, certPw, partnerCode)
             if ret != 0:
                 return "Login error"
+            return 0
         else:
             return "Version patch fail"
     
@@ -135,6 +140,7 @@ class Eugene():
     # 조회시 사용한 RqId 제거
     def releaseRqId(self, rqId):
         ret = self.eugene.dynamicCall("ReleaseRqId(int)", rqId)
+        return ret
 
     # Tran Input 값 세팅
     def setTranInputData(self, rqId, trCode, id, value):
